@@ -31,7 +31,7 @@ class nodejs(
     'Ubuntu': {
       include 'apt'
 
-      # Only use PPA when necessary.
+      # Always use PPA b/c it's up to date
       apt::ppa { 'ppa:chris-lea/node.js':
         before => Anchor['nodejs::repo'],
       }
