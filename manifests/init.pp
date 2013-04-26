@@ -32,7 +32,7 @@ class nodejs(
       include 'apt'
 
       # Always use PPA b/c it's up to date
-      apt::ppa { 'ppa:chris-lea/node.js':
+      apt::ppa { 'ppa:chris-lea/node.js-legacy':
         before => Anchor['nodejs::repo'],
       }
     }
