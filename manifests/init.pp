@@ -10,7 +10,9 @@
 #
 class nodejs(
   $dev_package = false,
-  $proxy       = ''
+  $proxy       = '',
+  $use_legacy = true,
+  $version = nil
 ) inherits nodejs::params {
 
   case $::operatingsystem {
@@ -30,10 +32,15 @@ class nodejs(
 
     'Ubuntu': {
       include 'apt'
-
-      # Always use PPA b/c it's up to date
-      apt::ppa { 'ppa:chris-lea/node.js-legacy':
-        before => Anchor['nodejs::repo'],
+      if $use_legacy {
+        # Always use PPA b/c it's up to date
+        apt::ppa { 'ppa:chris-lea/node.js-legacy':
+          before => Anchor['nodejs::repo'],
+        }
+      } else {
+        apt::ppa { 'ppa:chris-lea/node.js':
+          before => Anchor['nodejs::repo'],
+        }
       }
     }
 
@@ -61,10 +68,18 @@ class nodejs(
   # anchor resource provides a consistent dependency for prereq.
   anchor { 'nodejs::repo': }
 
-  package { 'nodejs':
-    name    => $nodejs::params::node_pkg,
-    ensure  => present,
-    require => Anchor['nodejs::repo']
+  if $version {
+    package { 'nodejs':
+      name    => $nodejs::params::node_pkg,
+      ensure  => $version,
+      require => Anchor['nodejs::repo']
+    }
+  } else {
+    package { 'nodejs':
+      name    => $nodejs::params::node_pkg,
+      ensure  => present,
+      require => Anchor['nodejs::repo']
+    }
   }
 
   package { 'npm':
