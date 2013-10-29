@@ -12,7 +12,8 @@ class nodejs(
   $dev_package = false,
   $proxy       = '',
   $use_legacy = true,
-  $version = nil
+  $version = nil,
+  $npm_version = nil
 ) inherits nodejs::params {
 
   case $::operatingsystem {
@@ -99,7 +100,7 @@ class nodejs(
   if $dev_package and $nodejs::params::dev_pkg {
     package { 'nodejs-dev':
       name    => $nodejs::params::dev_pkg,
-      ensure  => present,
+      ensure  => $version,
       require => Anchor['nodejs::repo']
     }
   }
