@@ -13,7 +13,8 @@ class nodejs(
   $proxy       = '',
   $use_legacy = true,
   $version = nil,
-  $npm_version = nil
+  $npm_version = nil,
+  $dev_version = nil
 ) inherits nodejs::params {
 
   case $::operatingsystem {
@@ -83,10 +84,19 @@ class nodejs(
     }
   }
 
-  package { 'npm':
-    name    => $nodejs::params::npm_pkg,
-    ensure  => present,
-    require => Anchor['nodejs::repo']
+  if $npm_version{
+    package { 'npm':
+      name    => $nodejs::params::npm_pkg,
+      ensure  => $npm_version,
+      require => Anchor['nodejs::repo']
+    }
+
+  } else {
+    package { 'npm':
+      name    => $nodejs::params::npm_pkg,
+      ensure  => present,
+      require => Anchor['nodejs::repo']
+    }
   }
 
   if $proxy {
@@ -97,11 +107,21 @@ class nodejs(
     }
   }
 
-  if $dev_package and $nodejs::params::dev_pkg {
-    package { 'nodejs-dev':
-      name    => $nodejs::params::dev_pkg,
-      ensure  => $version,
-      require => Anchor['nodejs::repo']
+  if $dev_version{
+    if $dev_package and $nodejs::params::dev_pkg {
+      package { 'nodejs-dev':
+        name    => $nodejs::params::dev_pkg,
+        ensure  => $dev_version,
+        require => Anchor['nodejs::repo']
+      }
+    }
+  } else {
+    if $dev_package and $nodejs::params::dev_pkg {
+      package { 'nodejs-dev':
+        name    => $nodejs::params::dev_pkg,
+        ensure  => present,
+        require => Anchor['nodejs::repo']
+      }
     }
   }
 
